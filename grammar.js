@@ -12,53 +12,58 @@ module.exports = grammar({
     _statement: $ => choice(
       $.let_statement,
     ),
-    let_statement: $ => seq("let", choice(field("names", $._identifier), seq($._identifier_with_colon, field("type", $.union))), "=", $._expression),
+    let_statement: $ => seq("let", field("name", $._identifier), optional(seq(":", field("type", $._type))), optional(seq("=", field("value", $._expression)))),
 
     // expressions
     _expression: $ => choice(
-      $.constant,
+      $._constant,
       $.block_expr,
       $.fun_expr,
       $.fun_call,
       $._binop,
+      // seq("(", $._expression, ")"),
     ),
     block_expr: $ => seq("{", field("body", repeat($._statement)), optional(field("return", $._expression)), "}"),
     fun_expr: $ => "_",
     fun_call: $ => "__",
     _binop: $ => choice($.add, $.sub, $.mul, $.div),
-    add: $ => seq(field("left", $._expression), "+", field("right", $._expression)),
-    sub: $ => seq(field("left", $._expression), "-", field("right", $._expression)),
-    mul: $ => seq(field("left", $._expression), "*", field("right", $._expression)),
-    div: $ => seq(field("left", $._expression), "/", field("right", $._expression)),
+    add: $ => prec.left(1, seq(field("left", $._expression), "+", field("right", $._expression))),
+    sub: $ => prec.left(1, seq(field("left", $._expression), "-", field("right", $._expression))),
+    mul: $ => prec.left(2, seq(field("left", $._expression), choice("*", "×"), field("right", $._expression))),
+    div: $ => prec.left(2, seq(field("left", $._expression), choice("/", "÷"), field("right", $._expression))),
 
     // typesystem
-    union: $ => seq($.type, repeat(seq("||", $.type))),
-    type: $ => seq($.basic_type, repeat(seq("+", $.basic_type))),
-    basic_type: $ => choice(
+    _type: $ => choice(
+      $.union_type,
+      $.add_type,
       $.primitive_type,
       $.applied_type,
-      seq("[", $.basic_type, "]"),
+      $.array_type,
       $.tuple_type,
-      $.constant,
-      seq("(", $.union, ")"),
+      $._constant,
+      seq("(", $._type, ")"),
     ),
-    applied_type: $ => seq(field("name", $._identifier), optional(seq("[", optional(field("args", $._type_args)), "]"))),
-    tuple_type: $ => choice(seq("(", ")"), seq("(", $.union, ",", optional(seq($.union, repeat(seq(",", $.union)))), ")")),
+    union_type: $ => prec.left(4, seq($._type, "||", $._type)),
+    add_type: $ => prec.left(3, seq($._type, "+", $._type)),
+    array_type: $ => seq("[", $._type, "]"),
+    applied_type: $ => seq(field("name", $._identifier), optional(seq("(", optional(field("args", $._type_args)), ")"))),
+    tuple_type: $ => seq("(", optional(seq($._type, ",", optional(seq($._type, repeat(seq(",", $._type)))))), ")"),
     primitive_type: $ => choice("number", "string", "boolean"),
     _identifier: $ => choice($.text_identifier, $.emoji_identifier),
     _identifier_with_colon: $ => choice(seq($.text_identifier, ":"), seq($.emoji_identifier, optional(":"))),
-    _type_args: $ => seq(choice($.union, "~"), repeat(seq(",", choice($.union, "~")))),
+    _type_args: $ => seq(choice($._type, "~"), repeat(seq(",", choice($._type, "~")))),
 
     // constants — acceptable as both types and values
-    constant: $ => choice(
+    _constant: $ => choice(
       $.number,
       $.boolean,
       $.string,
-      "nil",
+      $.nil,
     ),
     string: $ => /""/,
     number: $ => /\d+/,
     boolean: $ => choice("true", "false"),
+    nil: $ => "nil",
 
     // pieces
     nonword: $ => /\S+/,

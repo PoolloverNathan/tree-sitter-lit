@@ -1,13 +1,23 @@
-"let" @keyword
-(text_identifier) @attribute
-(applied_type name: (_) @type)
+(let_statement
+	"let" @keyword
+	name: (_) @attribute)
+":" @operator
+"=" @operator
+"+" @operator
+"-" @operator
+"/" @operator
+"*" @operator
+"×" @operator
+"÷" @operator
 (primitive_type) @type.builtin
-":" @punctuation.delimiter
-"number" @type.builtin
-(ERROR) @property
-"nil" @variable.builtin
-"true" @variable.builtin
-"false" @variable.builtin
+(applied_type
+  name: (_) @type)
+(union_type "||" @operator)
+(add_type "+" @operator)
+(ERROR) @error
+(nil) @variable.builtin
+(string) @string
+(boolean) @variable.builtin
 (number) @number
 "(" @punctuation.bracket
 ")" @punctuation.bracket

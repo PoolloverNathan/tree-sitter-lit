@@ -1,0 +1,58 @@
+===============================
+Simple let statement with value
+===============================
+let foo = 2
+---
+(source_file (let_statement name: (text_identifier) value: (number)))
+===========================================================================
+Let statement with primitive type and mathematical expression (non-Unicode)
+===========================================================================
+let foo: number = 7 * 3 - 2
+---
+(source_file (let_statement name: (text_identifier) type: (primitive_type) value: (number)))
+===============================================================================
+Let statement with emoji identifier, union type, and a parenthesized expression
+===============================================================================
+let 😀: Baz(Bar) || string = (21 × 7) / 2
+---
+(source_file (let_statement name: (emoji_identifier) type: (union_type (applied_type name: (text_identifier) args: (applied_type name: (text_identifier))) (primitive_type)) value: (number)))
+===============================================================================================================
+Let statement with emoji identifier, sum type with constnat, and parenthesized math using Unicode division sign
+===============================================================================================================
+let 🐄: Cow + 7 = (3 + 1) ÷ 5
+---
+(source_file
+  (let_statement
+    name: (emoji_identifier)
+    type: (union_type . (primitive_type) . (number) .)
+    value: (number)))
+=====================================================
+Simple let statement with primitive type and no value
+=====================================================
+let hi: number
+---
+(source_file (let_statement name: (text_identifier) type: (primitive_type)))
+===============================
+Let statement with string value
+===============================
+let str: string = ""
+---
+(source_file (let_statement name: (text_identifier) type: (primitive_type) value: (string)))
+========================================================
+Let statement with constant type and corresponding value
+========================================================
+let bar: 5 = 5
+---
+(source_file (let_statement name: (text_identifier) type: (number) value: (number)))
+================================
+Let statement with boolean value
+================================
+let b: boolean = true
+---
+(source_file (let_statement name: (text_identifier) type: (primitive_type) value: (boolean)))
+====================================
+Let statement with no type nor value
+====================================
+let whatever
+---
+(source_file (let_statement name: (text_identifier)))
