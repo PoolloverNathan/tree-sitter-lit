@@ -1,0 +1,35 @@
+=============================================
+Basic block-body if statement (with argument)
+=============================================
+if true {
+  ?stmt?
+}
+---------------------------------------------
+(source_file
+  (if_statemnt
+    condition: (boolean)
+    body: (block body: (fake_stmt))
+  )
+)
+========================
+Direct-body if statement
+========================
+if true: ?stmt?
+------------------------
+(source_file
+  (if_statemnt
+    condition: (boolean)
+    body: (fake_stmt)
+  )
+)
+==================
+Empty if statement
+==================
+if true {}
+---
+(source_file
+  (if_statemnt
+    condition: (boolean)
+    body: (block)
+  )
+)
