@@ -1,0 +1,12 @@
+=============
+panic keyword
+=============
+panic "illegal argument";
+-------------
+(source_file (expr_stateent (panic_expr (string (string_fragment)))))
+==============
+ohfuck keyword
+==============
+ohfuck "the malloc arena is corrupt";
+--------------
+(source_file (expr_stateent (ohfuck_expr (string (string_fragment)))))

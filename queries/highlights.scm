@@ -1,8 +1,8 @@
 (let_statement
   "let" @keyword
-  name: (_) @attribute
   ":"? @punctuation.delimiter
   "="? @punctuation.delimiter
+  ";" @punctuation.delimiter
   )
 (if_statemnt
   "if" @keyword
