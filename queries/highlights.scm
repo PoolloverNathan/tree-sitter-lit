@@ -13,6 +13,8 @@
 (block_expr
   "{" @punctuation.bracket
   "}" @punctuation.bracket)
+(panic_expr "panic" @keyword)
+(ohfuck_expr "ohfuck" @keyword)
 (add "+" @operator)
 (sub "-" @operator)
 (div "/" @operator)
