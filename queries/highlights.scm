@@ -13,8 +13,10 @@
 (block_expr
   "{" @punctuation.bracket
   "}" @punctuation.bracket)
+(throw_expr "throw" @keyword)
 (panic_expr "panic" @keyword)
 (ohfuck_expr "ohfuck" @keyword)
+(expr_stateent ";" @punctuation.delimiter)
 (add "+" @operator)
 (sub "-" @operator)
 (div "/" @operator)
@@ -23,6 +25,8 @@
 (div "÷" @operator)
 (fake_stmt) @constant
 (fake_pat) @constant
+(ident_pat) @property
+(string lang: (text_identifier) @injection.language content: (_) @injection.content)
 (fake_expr) @constant
 (fake_type) @constant
 (primitive_type) @type.builtin
@@ -42,7 +46,13 @@
 (add_type "+" @operator)
 (ERROR) @error
 (nil) @variable.builtin
-(string) @string
+(string_fragment) @string
+(fun_call "(" @punctuation.bracket ")" @punctuation.bracket)
+(fun_call fn: (var_expr) @function)
+(splice
+  "\\" @escape
+  "(" @punctuation.bracket
+  ")" @punctuation.delimiter)
 (boolean) @variable.builtin
 (number) @number
 (shebang program: _ @type.builtin argument: _? @string) @punctuation.delimiter

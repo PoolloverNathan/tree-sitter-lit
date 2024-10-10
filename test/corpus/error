@@ -1,9 +1,24 @@
+==========================
+throw keyword with strings
+==========================
+throw “oops, network request failed”;
+--------------------------
+(source_file (expr_stateent (throw_expr (string (string_fragment)))))
+
+==============================
+throw keyword with constructor
+==============================
+throw NetworkError(makeNetworkErrorMessage());
+------------------------------
+(source_file (expr_stateent (throw_expr error: (fun_call fn: (var_expr (text_identifier)) args: (fun_call fn: (var_expr (text_identifier)))))))
+
 =============
 panic keyword
 =============
-panic "illegal argument";
+panic “illegal argument”;
 -------------
 (source_file (expr_stateent (panic_expr (string (string_fragment)))))
+
 ==============
 ohfuck keyword
 ==============

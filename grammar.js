@@ -21,16 +21,35 @@ const PREC = {
   UNARY: 13, // => not # - ~
   POWER: 14, // => ^
 
-  STATEMENT: 15,
-  PROGRAM: 16,
+  THROW: 15,
+
+  STATEMENT: 16,
+  PROGRAM: 17,
 };
+
+const sep = (inner, sep = ",") => optional(seq(inner, repeat(seq(sep, inner)), optional(sep)))
 
 module.exports = grammar({
   name: "lit",
   word: $ => $.text_identifier,
   supertypes: $ => [$._statement, $._pat, $._expression, $._type],
   conflicts: $ => [[$.block, $.block_expr]],
-
+  precedences: $ => [
+    [
+      "post",
+      "pre",
+      "mul",
+      "add",
+      "shift",
+      "noteq",
+      "eq",
+      "and",
+      "xor",
+      "or",
+      "throw",
+      "anyway",
+    ]
+  ],
   rules: {
     // TODO: add the actual grammar rules
     source_file: $ => seq(optional($.shebang), repeat(seq($._statement))),
@@ -75,22 +94,28 @@ module.exports = grammar({
       $.fun_call,
       $._binop,
       $.paren_expr,
+      $.throw_expr,
       $.panic_expr,
       $.ohfuck_expr,
+      $.anyway_expr,
       $.fake_expr,
+      $.var_expr,
     ),
     fake_expr: $ => "?expr?",
+    anyway_expr: $ => prec.right("anyway", seq($._expression, "anyway", $._expression)),
+    var_expr: $ => $._identifier,
     paren_expr: $ => seq(/\(/, $._expression, /\)/),
     block_expr: $ => seq("{", field("body", repeat($._statement)), optional(field("return", $._expression)), "}"),
     fun_expr: $ => "_",
-    fun_call: $ => "__",
+    fun_call: $ => prec("post", seq(field("fn", $._expression), "(", field("args", sep($._expression)), ")")),
     _binop: $ => choice($.add, $.sub, $.mul, $.div),
-    panic_expr: $ => seq("panic", field("message", $.string)),
-    ohfuck_expr: $ => seq("ohfuck", field("message", $.string)),
-    add: $ => prec.left(1, seq(field("left", $._expression), "+", field("right", $._expression))),
-    sub: $ => prec.left(1, seq(field("left", $._expression), "-", field("right", $._expression))),
-    mul: $ => prec.left(2, seq(field("left", $._expression), choice("*", "×"), field("right", $._expression))),
-    div: $ => prec.left(2, seq(field("left", $._expression), choice("/", "÷"), field("right", $._expression))),
+    throw_expr: $ => prec("throw", seq("throw", field("error", $._expression))),
+    panic_expr: $ => prec("throw", seq("panic", field("message", $.string))),
+    ohfuck_expr: $ => prec("throw", seq("ohfuck", field("message", $.string))),
+    add: $ => prec.left("add", seq(field("left", $._expression), "+", field("right", $._expression))),
+    sub: $ => prec.left("add", seq(field("left", $._expression), "-", field("right", $._expression))),
+    mul: $ => prec.left("mul", seq(field("left", $._expression), choice("*", "×"), field("right", $._expression))),
+    div: $ => prec.left("mul", seq(field("left", $._expression), choice("/", "÷"), field("right", $._expression))),
 
     //{{{1 types
     _type: $ => choice(
@@ -123,23 +148,31 @@ module.exports = grammar({
       $.string,
       $.nil,
     ),
-    string: $ => choice($._straight_string, $._curly_string),
+    string: $ => choice($._straight_string, $._curly_string, $._inject_string),
     
     nested_string: $ => $._curly_string,
     unescaped_string_fragment: _ => token.immediate(prec(1, /[^"“”\\]+/)),
     _string_contents: $ => choice(
       alias($.unescaped_string_fragment, $.string_fragment),
       $.nested_string,
+      $.splice,
       // $.escape_sequence,
     ),
+    splice: $ => seq("\\", token.immediate("("), $._expression, ")"),
     _straight_string: $ => seq(
       '"',
-      repeat($._string_contents),
+      field("content", repeat($._string_contents)),
       '"',
     ),
     _curly_string: $ => seq(
       "“",
-      repeat($._string_contents),
+      field("content", repeat($._string_contents)),
+      "”",
+    ),
+    _inject_string: $ => seq(
+      field("lang", $.text_identifier),
+      "“",
+      field("content", repeat($._string_contents)),
       "”",
     ),
 
