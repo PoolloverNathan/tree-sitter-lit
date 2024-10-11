@@ -44,7 +44,7 @@
   ")" @punctuation.bracket)
 (union_type "||" @operator)
 (add_type "+" @operator)
-(ERROR) @error
+(ERROR) @comment
 (nil) @variable.builtin
 (string_fragment) @string
 (fun_call "(" @punctuation.bracket ")" @punctuation.bracket)
