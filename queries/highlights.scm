@@ -23,6 +23,23 @@
 (mul "*" @operator)
 (mul "×" @operator)
 (div "÷" @operator)
+(or "or" @operator)
+(or "||" @operator)
+(and "and" @operator)
+(and "&&" @operator)
+(xor "xor" @operator)
+(xor "~~" @operator)
+(eq "==" @operator)
+(ne "!=" @operator)
+(ne "~=" @operator)
+(ne "≠" @operator)
+(ne "≠≠" @operator)
+(lt "<" @operator)
+(le "<=" @operator)
+(le "≤" @operator)
+(gt ">" @operator)
+(ge ">=" @operator)
+(ge "≥" @operator)
 (fake_stmt) @constant
 (fake_pat) @constant
 (ident_pat) @property

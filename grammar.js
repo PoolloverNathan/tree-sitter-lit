@@ -2,32 +2,10 @@
 // @ts-check
 
 // from https://github.com/tjdevries/tree-sitter-lua/blob/master/grammar.js
-const PREC = {
-  COMMA: -1,
-  FUNCTION: 1,
-  DEFAULT: 1,
-  PRIORITY: 2,
-
-  OR: 3, // => or
-  AND: 4, // => and
-  COMPARE: 5, // => < <= == ~= >= >
-  BIT_OR: 6, // => |
-  BIT_NOT: 7, // => ~
-  BIT_AND: 8, // => &
-  SHIFT: 9, // => << >>
-  CONCAT: 10, // => ..
-  PLUS: 11, // => + -
-  MULTI: 12, // => * / %
-  UNARY: 13, // => not # - ~
-  POWER: 14, // => ^
-
-  THROW: 15,
-
-  STATEMENT: 16,
-  PROGRAM: 17,
-};
 
 const sep = (inner, sep = ",") => optional(seq(inner, repeat(seq(sep, inner)), optional(sep)))
+const choice1 = (...members) => members.length == 1 ? members[0] : choice(...members)
+const binop = (level, ...ops) => $ => prec.left(level, seq(field("left", $._expression), choice1(...ops), field("right", $._expression)))
 
 module.exports = grammar({
   name: "lit",
@@ -108,14 +86,37 @@ module.exports = grammar({
     block_expr: $ => seq("{", field("body", repeat($._statement)), optional(field("return", $._expression)), "}"),
     fun_expr: $ => "_",
     fun_call: $ => prec("post", seq(field("fn", $._expression), "(", field("args", sep($._expression)), ")")),
-    _binop: $ => choice($.add, $.sub, $.mul, $.div),
+    _binop: $ => choice(
+      $.add,
+      $.sub,
+      $.mul,
+      $.div,
+      $.or,
+      $.and,
+      $.xor,
+      $.eq,
+      $.ne,
+      $.lt,
+      $.le,
+      $.gt,
+      $.ge,
+    ),
     throw_expr: $ => prec("throw", seq("throw", field("error", $._expression))),
     panic_expr: $ => prec("throw", seq("panic", field("message", $.string))),
     ohfuck_expr: $ => prec("throw", seq("ohfuck", field("message", $.string))),
-    add: $ => prec.left("add", seq(field("left", $._expression), "+", field("right", $._expression))),
-    sub: $ => prec.left("add", seq(field("left", $._expression), "-", field("right", $._expression))),
-    mul: $ => prec.left("mul", seq(field("left", $._expression), choice("*", "×"), field("right", $._expression))),
-    div: $ => prec.left("mul", seq(field("left", $._expression), choice("/", "÷"), field("right", $._expression))),
+    add: binop("add", "+"),
+    sub: binop("add", "-"),
+    mul: binop("mul", "*", "×"),
+    div: binop("mul", "/", "÷"),
+    or: binop("or", "or", "||"),
+    and: binop("and", "and", "&&"),
+    xor: binop("xor", "xor", "~~"),
+    eq: binop("eq", "=="),
+    ne: binop("eq", "!=", "~=", "≠", "≠≠"),
+    lt: binop("noteq", "<"),
+    le: binop("noteq", "<=", "≤"),
+    gt: binop("noteq", ">"),
+    ge: binop("noteq", ">=", "≥"),
 
     //{{{1 types
     _type: $ => choice(

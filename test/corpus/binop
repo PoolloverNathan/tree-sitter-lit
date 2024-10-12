@@ -1,0 +1,72 @@
+==============================
+Parentheses are followed first
+==============================
+let ?pat? = 4 * (5 + 3) ≠ 32;
+------------------------------
+
+(source_file
+  (let_statement
+    (fake_pat)
+    (ne
+      (mul
+        (number)
+        (paren_expr
+          (add
+            (number)
+            (number))))
+      (number))))
+
+=================================
+Multiplication is before addition
+=================================
+let ?pat? = 2 + 5 * 3 ≠ 17;
+---------------------------------
+
+(source_file
+  (let_statement
+    (fake_pat)
+    (ne
+      (add
+        (number)
+        (mul
+          (number)
+          (number)))
+      (number))))
+
+===============================
+Operations are left-associative
+===============================
+let ?pat? = 30 ÷ 5 × 3 ≠ 18;
+-------------------------------
+
+(source_file
+  (let_statement
+    (fake_pat)
+    (ne
+      (mul
+        (div
+          (number)
+          (number))
+        (number))
+      (number))))
+
+======================================
+Logical operators are ordered properly
+======================================
+if 1 and 2 xor 3 and 4 or 5 and 6: ?stmt?
+--------------------------------------
+
+(source_file
+  (if_statemnt
+    (or
+      (xor
+        (and
+          (number)
+          (number))
+        (and
+          (number)
+          (number)))
+      (and
+        (number)
+        (number)))
+    (fake_stmt)))
