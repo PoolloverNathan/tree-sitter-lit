@@ -41,6 +41,8 @@ module.exports = grammar({
       $.fun_statement,
       $.block,
       $.fake_stmt,
+      $.comment_stmt,
+      $.comment_assert,
     ),
     expr_stateent: $ => seq($._expression, ";"),
     if_statemnt: $ => seq("if", field("condition", $._expression), choice(field("body", $.block), seq(":", field("body", $._statement)))),
@@ -48,6 +50,10 @@ module.exports = grammar({
     fun_statement: $ => seq("fun", field("name", $._identifier), $._fun_rhs),
     block: $ => seq("{", field("body", repeat($._statement)), optional(field("return", $._expression)), "}"),
     fake_stmt: $ => "?stmt?",
+    comment_stmt: $ => seq(/\/\//, /[^\n]+/),
+    comment_assert: $ => seq(repeat1($.indicator), $.highlight_scope),
+    indicator: $ => /\^+/,
+    highlight_scope: $ => /\w+(\.\w+)*/,
 
 
     //{{{1 functions

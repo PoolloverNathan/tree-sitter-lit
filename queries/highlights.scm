@@ -62,6 +62,10 @@
 (union_type "||" @operator)
 (add_type "+" @operator)
 (ERROR) @comment
+(comment_stmt) @comment
+(comment_assert
+  (indicator) @operator
+  (highlight_scope) @type)
 (nil) @variable.builtin
 (string_fragment) @string
 (fun_call "(" @punctuation.bracket ")" @punctuation.bracket)
